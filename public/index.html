@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home</title>
+</head>
+
+<body>
+
+
+    <h1>CMC 小工具</h1>
+
+    <h3><a href="/imageresize.html">圖片壓縮</a></h3>
+    <h3><a href="/file.html">上傳檔案</a></h3>
+    <hr>
+    <ul id="ul">
+        <li><a href="/"></a></li>
+    </ul>
+
+    <script>
+        var data = {}
+
+        //data//
+
+        let li = ''
+        Object.keys(data.obj).forEach(a => {
+            li += '<li><a href="/' + a + '">' + a + '</a></li>'
+        })
+        document.getElementById("ul").innerHTML = li
+    </script>
+
+</body>
+
+</html>

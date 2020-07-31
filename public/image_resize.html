@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Img Zip</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="" rel="stylesheet">
+    <script src="./js/ieout.js"></script>
+    <script src="./js/vue.js"></script>
+    <style>
+        li {
+            margin: 10px;
+        }
+
+        #point {
+            cursor: pointer;
+            position: fixed;
+            width: 200px;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="vue">
+        <fieldset>
+            <legend>圖片壓縮小工具</legend>
+            <ol>
+                <li>上傳檔案： <input id="111" type="file" accept="image/*" multiple="multiple"
+                        @change="processFile($event)" />
+                </li>
+                <li>限制最大寬度： <input type="number" v-model="width" /> 或 高度： <input type="number" v-model="height" /></li>
+                <li>設定維持原比例： <input type="checkbox" v-model="ritao" /></li>
+                <li><select v-model="type">
+                        <option value="jpeg">jpg</option>
+                        <option value="png">png</option>
+                    </select></li>
+                <li>壓縮畫質: {{quality}} <input type="range" max="100" min="10" step="10" v-model="level"></li>
+                <li><button @click="compress()">進行壓縮</button></li>
+            </ol>
+            <ol>
+                <li v-for="item of zip"><a :download="item.download" :href="item.download?item.href:null"
+                        target="_blank" @mouseover="hover = item.href"
+                        @mouseout="hover = ''">{{item.download?item.download:'檔案過大無法下載'}}</a>:
+                    {{item.rate}}
+                </li>
+            </ol>
+        </fieldset>
+        <div id="point"><img v-if="hover" :src="hover" width="100%" style="background-color:white;"></div>
+    </div>
+
+    <script type="text/javascript">
+        var vue = new Vue({
+            el: '#vue',
+            data: {
+                files: [],
+                width: 640,
+                height: 480,
+                ritao: true,
+                type: 'jpeg',
+                level: 100,
+                zip: [],
+                hover: ''
+            },
+            computed: {
+                quality: function () {
+                    if (this.level >= 100) {
+                        return '原畫質'
+                    } else if (this.level >= 75) {
+                        return '高畫質'
+                    } else if (this.level >= 50) {
+                        return '中畫質'
+                    } else {
+                        return '低畫質'
+                    }
+                }
+            },
+            methods: {
+                processFile: function (event) {
+                    var self = this
+                    self.files = Object.values(event.target.files)
+                },
+                compress: function () {
+                    let self = this
+                    self.zip = [];
+                    self.files.forEach(function (e) {
+                        let fileReader = new FileReader();
+                        fileReader.onload = function (f) {
+                            let image = new Image();
+                            image.onload = function () {
+                                let canvas = document.createElement('canvas');
+                                let context = canvas.getContext('2d');
+                                let w = this.width, h = this.height;
+                                if (self.ritao && (self.width || self.height)) {
+                                    w = self.width >= self.height ? self.width : this.width * self.height / this.height;
+                                    h = self.width >= self.height ? this.height * self.width / this.width : self.height;
+                                } else if (self.width && self.height) {
+                                    w = self.width;
+                                    h = self.height;
+                                }
+                                canvas.width = w;
+                                canvas.height = h;
+                                context.drawImage(this, 0, 0, w, h);
+                                let base64 = canvas.toDataURL('image/' + self.type, (self.level / 100))
+                                let rate = 100 * base64.length / e.size
+                                if (rate >= 100) {
+                                    rate = '已無法壓縮'
+                                } else {
+                                    rate = '已壓縮' + Math.ceil(100 - rate) + '%'
+                                }
+                                self.zip.push({
+                                    download: base64.length > 2000000 ? null : e.name.substr(0, e.name.lastIndexOf('.')) + '-w' + Math.ceil(w) + 'h' + Math.ceil(h),
+                                    href: base64,
+                                    rate: rate
+                                })
+                            };
+                            image.src = f.target.result;
+                        };
+                        fileReader.readAsDataURL(e);
+                    });
+                },
+
+            }
+        });
+
+        window.onload = function () {
+            if (!!window.ActiveXObject || "ActiveXObject" in window){
+                window.alert('不支援IE瀏覽器')
+            }else{
+                console.log('Chrome 好棒!')
+            }
+        }
+
+    </script>
+</body>
+
+</html>

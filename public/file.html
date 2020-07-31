@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Index</title>
+</head>
+
+<body>
+    <h3>檔案上傳-A</h3>
+    <input id="file" type="file" name="image" size="50" />
+    <h3>檔案上傳-M</h3>
+    <form action="/file_upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" size="50" />
+        <input type="submit" value="Upload" />
+    </form>
+
+
+
+
+
+    <script>
+        const fileBtn = document.getElementById('file')
+        fileBtn.addEventListener('change', () => {
+            console.log(fileBtn)
+            const fd = new FormData()
+            fd.append('file', fileBtn.files[0])
+            fetch('/_upload', {
+                method: 'POST',  body: fd,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }).then(res => {
+                if (res.ok) {
+                    console.log('success')
+                    return res.json();
+                } else {
+                    console.log('error')
+                }
+            }).then(res => {
+                console.log('res is', res);
+            })
+        })
+    </script>
+</body>
+
+</html>
